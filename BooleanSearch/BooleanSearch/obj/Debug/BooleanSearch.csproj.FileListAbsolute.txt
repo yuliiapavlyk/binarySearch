@@ -1,0 +1,7 @@
+C:\Users\ypavly\source\repos\BooleanSearch\BooleanSearch\bin\Debug\BooleanSearch.exe.config
+C:\Users\ypavly\source\repos\BooleanSearch\BooleanSearch\bin\Debug\BooleanSearch.exe
+C:\Users\ypavly\source\repos\BooleanSearch\BooleanSearch\bin\Debug\BooleanSearch.pdb
+C:\Users\ypavly\source\repos\BooleanSearch\BooleanSearch\obj\Debug\BooleanSearch.csprojAssemblyReference.cache
+C:\Users\ypavly\source\repos\BooleanSearch\BooleanSearch\obj\Debug\BooleanSearch.csproj.CoreCompileInputs.cache
+C:\Users\ypavly\source\repos\BooleanSearch\BooleanSearch\obj\Debug\BooleanSearch.exe
+C:\Users\ypavly\source\repos\BooleanSearch\BooleanSearch\obj\Debug\BooleanSearch.pdb
