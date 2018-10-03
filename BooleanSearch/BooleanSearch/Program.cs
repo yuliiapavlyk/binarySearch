@@ -8,10 +8,12 @@ using System.Threading.Tasks;
 namespace BooleanSearch
 {
     class Program
-    {       
-                       
-        static string[] operations = { "and ", "or ", "not " };
-     
+    {
+
+        
+        static string and = "and";
+        static string not = "not";
+        static string or = "or";
 
         static void Main(string[] args)
         {
@@ -40,134 +42,155 @@ namespace BooleanSearch
             #endregion
             //data for searching
             List<string> lists = new List<string>();
-            lists.Add("yulia Omelchenko");
-            lists.Add("Michael Petriv");
-            lists.Add("Sven oleg");
-            lists.Add("lalal Terry");
-            lists.Add("Claire Adams");
-            lists.Add("yulia Hugo");
-            lists.Add("Garcia yulia");
-            lists.Add("oleg Petriv");
+            lists.Add("yulia");
+            lists.Add("maridel");
+            lists.Add("gianni");
+            lists.Add("gianni");
+            lists.Add("Maridel");
+            lists.Add("tris");
+            lists.Add("maridel");
+            lists.Add("oleg");
             lists.Add("Petriv oleg");
 
-            
-           
-            string searchValue = "yulia and not andriy and oleg and petro and not sofia";
+            string searchValue = "maridel or gianni and not tris ";
             Console.WriteLine(searchValue);
             string[] separator = { " " };
             string line = " ";
 
             var searchElements = new List<string>();
 
-            //split " "
-            string[] searchList = searchValue.Split(separator, StringSplitOptions.None);
+            string[] dataElements = searchValue.Split(separator, StringSplitOptions.None);
 
-
-            for (int i = 0; i < searchList.Length; i++)
-            {
-                if (searchList[i]== "and" || searchList[i] == "or" || searchList[i] == "not")
-                {
-                    line += searchList[i];
-                    line += " ";
-                }
-                else
-                {
-                    line += searchList[i];
-                    searchElements.Add(line);
-                    line = " ";
-                }
-            }
-
-            //create object fields
             var qElement = new List<QueryElement>();
-            foreach (var i in searchElements)
+            qElement.Add(new QueryElement((dataElements[0] == not ? dataElements[1] : dataElements[0]), dataElements[0]==not?true:false));
+
+            for (int i = 1; i < dataElements.Length; i++)
             {
-                if (i.Contains("and ") || i.Contains("or "))
+                if (dataElements[i] == and || dataElements[i] == or)
                 {
-                    string element= i.Substring(4);
+                    var newElement = new QueryElement();
+                    newElement.operation = dataElements[i] == and ? and : or;
+                    newElement.notCondition = (dataElements[i + 1] == not) ? true : false;
+                    newElement.name = newElement.notCondition == true ? dataElements[i + 2] : dataElements[i + 1];
 
-
-                    qElement.Add(new QueryElement(element, i.Contains("not ") ? true : false, i.Contains("or ") ? "or" : "and"));
-                }
-
-                else
-                {
-                    qElement.Add(new QueryElement(i, i.Contains("not ") ? true : false));
-
+                    qElement.Add(newElement);
                 }
             }
-                    
+            #region
             //display data : object and info
             foreach (var i in qElement)
             {
-                Console.WriteLine("Name : " + i.name );
-                Console.WriteLine("Type(not) : " + i.type );
-               Console.WriteLine("Operation (or , and ) " + i.operation);
+                Console.WriteLine("Name : " + i.name);
+                Console.WriteLine("Not condition : " + i.notCondition);
+                Console.WriteLine("Operation (or , and ) " + i.operation);
                 Console.WriteLine("____________________________");
             }
 
+            #endregion
+            #region
 
-            //string variable = "Petriv";
-
-            //string variable1 = "Petriv AND l";
-            //Console.WriteLine("________________");
+            //   //split " "
+            //   string[] searchList = searchValue.Split(separator, StringSplitOptions.None);
 
 
+            //   for (int i = 0; i < searchList.Length; i++)
+            //   {
+            //       if (searchList[i] == and || searchList[i] == or || searchList[i] == not)
+            //       {
+            //           line += searchList[i];
+            //           line += " ";
+            //       }
+            //       else
+            //       {
+            //           line += searchList[i];
+            //           searchElements.Add(line);
+            //           line = " ";
+            //       }
+            //   }
+            //   string element = "";
+            //   //create object fields
+            ////   var qElement = new List<QueryElement>();
+            //   foreach (var i in searchElements)
+            //   {
+            //       if (i.Contains(and) || i.Contains(or))
+            //       {
 
-            //IEnumerable<string> personQuery =
-            //    from person in lists
-            //    where person.Contains(variable1)
-            //    select person;
+            //               element = i.Substring(4);
 
-            //foreach (var i in personQuery)
+
+            //           qElement.Add(new QueryElement(element, i.Contains(not) ? true : false, i.Contains(or) ? or : and));
+            //       }
+
+            //       else
+            //       {
+            //           qElement.Add(new QueryElement(i, i.Contains(not) ? true : false));
+
+            //       }
+            //   }
+
+            ////display data : object and info
+            //foreach (var i in qElement)
             //{
-            //    Console.WriteLine(i);
-            //}\  
-            var andExpression = new List<Expression>();
+            //    Console.WriteLine("Name : " + i.name);
+            //    Console.WriteLine("Not condition : " + i.notCondition);
+            //    Console.WriteLine("Operation (or , and ) " + i.operation);
+            //    Console.WriteLine("____________________________");
+            //}
+
+            #endregion
+
             IQueryable<String> queryableData = lists.AsQueryable<string>();
 
-            ParameterExpression list = Expression.Parameter(typeof(string), "lists");
+            ParameterExpression list = Expression.Parameter(typeof(string), "res");
 
-            foreach (var i in qElement)
+            Expression predicateBody;
+            Expression e1, e2;
+
+            Expression leftFirst = Expression.Call(list, typeof(string).GetMethod("ToLower", System.Type.EmptyTypes));
+
+            Expression rightFirst = Expression.Constant(qElement[0].name.Trim());
+
+
+            var firstCondition = qElement[0].notCondition
+                      ? Expression.NotEqual(leftFirst, rightFirst)
+                      : Expression.Equal(leftFirst, rightFirst);
+            predicateBody = firstCondition;            
+
+            var elements = qElement.OrderBy(qe => qe.operation);
+
+            foreach (var el in elements)
             {
-                if (i.type == true)
+                Expression right = Expression.Constant(el.name);
+
+                var newCondition = el.notCondition
+                    ? Expression.NotEqual(leftFirst, right)
+                    : Expression.Equal(leftFirst, right);
+
+                if (el.operation == and)
                 {
-                    Expression name = Expression.Constant(i.name);
-                      Expression el1 = Expression.Not(name);
-                     notExpression.Add(el1); 
+                    predicateBody = Expression.And(predicateBody, newCondition);
                 }
-
-                if (i.operation == "not ")
+                if (el.operation == or)
                 {
-                    Expression name = Expression.Constant(i.name);
-                    andExpression.Add(name);
+                    predicateBody = Expression.Or(predicateBody, newCondition);
                 }
-
-
-                Expression left = Expression.Call(list, typeof(string).GetMethod("ToLower", System.Type.EmptyTypes));
-                Expression right = Expression.Constant(i.name);
-                Expression e1 = Expression.Equal(left, right);
-
-                Expression le = Expression.Call(list, typeof(string).GetMethod("ToLower", System.Type.EmptyTypes));
-                Expression ri = Expression.Constant(i.name);
-                Expression e2 = Expression.Equal(le, ri);
-
-                Expression e3 = Expression.Equal(le, ri);
-
-
-
-                Expression predicateBody = Expression.And(e1, e2);
-                predicateBody = Expression.And(predicateBody, e3);
             }
+            MethodCallExpression whereCallExpression = Expression.Call(
+               typeof(Queryable),
+               "Where",
+               new Type[] { queryableData.ElementType },
+               queryableData.Expression,
+            Expression.Lambda<Func<string, bool>>(predicateBody, new ParameterExpression[] { list }));
+            Console.WriteLine(whereCallExpression);
 
-                MethodCallExpression whereCallExpression = Expression.Call(
-                   typeof(Queryable),
-                   "Where",
-                   new Type[] { queryableData.ElementType },
-                   queryableData.Expression,
-                   Expression.Lambda<Func<string, bool>>(predicateBody, new ParameterExpression[] { list }));
-                Console.ReadKey();
-            
+            var results = queryableData.Provider.CreateQuery(whereCallExpression);           
+
+            foreach (var el in results)
+            {
+                Console.WriteLine(el);
+            }
+            Console.ReadKey();
+
         }
     }
 }

@@ -10,16 +10,20 @@ namespace BooleanSearch
     {
         public string name { get; set; }
         public string operation { get; set; }
-        public bool type { get; set; }
-        public QueryElement(string name, bool type)
+        public bool notCondition { get; set; }
+        public QueryElement()
         {
-            this.name = name;
-            this.type = type;
+
         }
-        public QueryElement(string name, bool type, string operation)
+        public QueryElement(string name, bool notCondition)
         {
             this.name = name;
-            this.type = type;
+            this.notCondition = notCondition;
+        }
+        public QueryElement(string name, bool notCondition, string operation)
+        {
+            this.name = name;
+            this.notCondition = notCondition;
             this.operation = operation;
         }
     }
